@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+    
+<struts>
+
+	<!-- 指定由spring负责action对象的创建 -->
+	<constant name="struts.objectFactory" value="spring" />
+	<!-- 所有匹配*.do的请求都由struts2处理 -->
+	<constant name="struts.action.extension" value="do" />
+	<!-- 是否启用开发模式 -->
+	<constant name="struts.devMode" value="false" />
+	<!-- struts配置文件改动后，是否重新加载 -->
+	<constant name="struts.configuration.xml.reload" value="false" />
+	<!-- 设置浏览器是否缓存静态内容 -->
+	<constant name="struts.serve.static.browserCache" value="true" />
+	<!-- 请求参数的编码方式 -->
+	<constant name="struts.i18n.encoding" value="utf-8" />
+	<!-- 每次HTTP请求系统都重新加载资源文件，有助于开发 -->
+	<constant name="struts.i18n.reload" value="false" />
+	<!-- 文件上传最大值 -->
+	<constant name="struts.multipart.maxSize" value="2147483648" />
+	<!-- 让struts2支持动态方法调用 -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="true" />
+	<!-- Action名称中是否可使用斜线 -->
+	<constant name="struts.enable.SlashesInActionNames" value="false" />
+	<!-- 允许标签中使用表达式语法 -->
+	<constant name="struts.tag.altSyntax" value="true" />
+	<!-- 对于WebLogic,Orion,OC4J此属性应该设置成true -->
+	<constant name="struts.dispatcher.parametersWorkaround" value="false" />
+	<!-- 设置Convention插件是否从jar包中搜索Action类 [可选] 默认值为true -->
+	<constant name="struts.convention.action.disableJarScanning" value="false" />
+
+	<package name="SysPackage" extends="struts-default" namespace="/">
+		<interceptors>
+			<!-- 字符集拦截器 -->
+			<interceptor name="encodingInterceptor" class="com.app.interceptor.EncodingInterceptor" />
+			<interceptor-stack name="encodingStack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="encodingInterceptor"></interceptor-ref>
+			</interceptor-stack>
+			<!-- session拦截器 -->
+			<interceptor name="sessionInterceptor" class="com.app.interceptor.SessionInterceptor" />
+			<interceptor-stack name="sessionStack">
+				<interceptor-ref name="encodingStack"></interceptor-ref>
+				<interceptor-ref name="sessionInterceptor">
+					<!-- doNotNeedSessionAndSecurity_ 开头的和doNotNeedSession_ 开头的方法不拦截 -->
+					<param name="excludeMethods">dnss_*,login*,ssoLogin*,init*,logout*,download*</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+
+		<global-results>
+			<!-- 没有session -->
+			<result name="noSession">/error/noSession.jsp</result>
+			<!-- 没有权限 -->
+			<result name="noSecurity">/error/noSecurity.jsp</result>
+			<!-- struts抛异常 -->
+			<result name="strutsException">/error/strutsException.jsp</result>
+		</global-results>
+
+		<global-exception-mappings>
+			<exception-mapping result="strutsException" exception="java.lang.Exception"></exception-mapping>
+		</global-exception-mappings>
+	</package>
+	
+
+</struts>
